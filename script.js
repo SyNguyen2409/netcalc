@@ -112,6 +112,12 @@ function setupSyncedInputs(sliderId, numberId) {
 // ====================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    document.body.classList.remove("loading-active"); // Cho phép cuộn lại
+    document.body.classList.add("loaded"); // Kích hoạt hiệu ứng hiện nội dung
+  }, 1500); // 1500ms = 1.5 giây
+
+  updateInputArea();
   updateInputArea();
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "light") {

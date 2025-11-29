@@ -803,3 +803,62 @@ body.light-mode .output-area th {
   }
 }
 
+/* ... [GIỮ NGUYÊN CSS CŨ] ... */
+
+/* --- LOADING SCREEN STYLES --- */
+#loading-screen {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: var(--bg-deep); /* Trùng màu nền web */
+    z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    transition: opacity 0.8s ease-out, visibility 0.8s;
+}
+
+.loader-content { text-align: center; }
+
+/* Vòng xoay Cyber */
+.spinner {
+    width: 60px; height: 60px;
+    border: 4px solid rgba(59, 130, 246, 0.3);
+    border-top: 4px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 15px var(--accent);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-family: var(--font-code);
+    color: var(--accent);
+    letter-spacing: 2px;
+    animation: blinkText 1.5s infinite;
+}
+
+@keyframes blinkText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Ẩn thanh cuộn khi đang loading */
+body.loading-active { overflow: hidden; }
+
+/* Class để ẩn loading */
+.loaded #loading-screen {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Hiệu ứng nội dung hiện ra sau khi loading */
+.site-content {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+}
+.loaded .site-content {
+    opacity: 1; transform: translateY(0);
+}
