@@ -77,13 +77,4 @@ Tệp này mặc định là bản demo — nếu bạn muốn tôi thêm `LICEN
 
 **Thông tin tác giả / liên hệ**
 - Tác giả: SyNguyen2409 (owner repo `netcalc`)
-- Liên hệ: tạo issues trên repo, hoặc gửi email (bổ sung nếu bạn muốn công khai địa chỉ liên hệ)
-
---
-
-Muốn mình làm tiếp phần nào sau đây?
-- (A) Gắn lưu theme vào `localStorage` + sync checkbox khi load
-- (B) Thêm nút export CSV cho bảng subnet
-- (C) Tinh chỉnh style header để toggle chính giữa và responsive
-
-Chọn 1 hoặc 2, tôi sẽ tiếp tục and implement ngay.
+- Liên hệ: tạo issues trên repo, hoặc gửi email (bổ sung nếu bạn muốn công khai địa chỉ liên hệ).
