@@ -396,3 +396,16 @@ function calculateNthSubnet(baseNetworkNum, blockSize, newCidr, max) {
         Broadcast:  ${numToIp(broad)}
     `;
 }
+
+window.onscroll = function() {
+    var button = document.getElementById('scrollToTopBtn');
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        button.classList.add('show');
+    } else {
+        button.classList.remove('show');
+    }
+};
+
+function scrollToTop() {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}

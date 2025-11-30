@@ -885,118 +885,258 @@ body.loading-active {
    NEW SOCIAL ICONS (LIQUID FILL - NO ZOOM)
    ========================================= */
 ul.example-2 {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Căn giữa icon */
-  gap: 15px; /* Khoảng cách giữa các icon */
+    list-style: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Căn giữa icon */
+    gap: 15px; /* Khoảng cách giữa các icon */
 }
 
 .example-2 .icon-content {
-  position: relative;
-  z-index: 1;
+    position: relative;
+    z-index: 1;
 }
 
 /* Tooltip bay lên */
 .example-2 .icon-content .tooltip {
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%) scale(0.8);
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 5px;
-  opacity: 0;
-  visibility: hidden;
-  font-size: 0.75rem;
-  font-family: var(--font-code);
-  font-weight: bold;
-  transition: all 0.3s ease;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 10;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    opacity: 0;
+    visibility: hidden;
+    font-size: 0.75rem;
+    font-family: var(--font-code);
+    font-weight: bold;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
 }
 
 .example-2 .icon-content:hover .tooltip {
-  opacity: 1;
-  visibility: visible;
-  top: -45px;
-  transform: translateX(-50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+    top: -45px;
+    transform: translateX(-50%) scale(1);
 }
 
 /* Khung Icon Tròn */
 .example-2 .icon-content a {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  
-  /* Màu mặc định */
-  background-color: var(--card-bg); 
-  color: var(--text-muted);
-  border: 1px solid var(--glass-border);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+
+    /* Màu mặc định */
+    background-color: var(--card-bg);
+    color: var(--text-muted);
+    border: 1px solid var(--glass-border);
 }
 
 .example-2 .icon-content a:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  color: white;
-  border-color: transparent;
-  /* ĐÃ BỎ: transform: translateY(...) hoặc scale(...) ở đây */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: white;
+    border-color: transparent;
+    /* ĐÃ BỎ: transform: translateY(...) hoặc scale(...) ở đây */
 }
 
 .example-2 .icon-content a svg {
-  position: relative;
-  z-index: 2;
-  width: 20px;
-  height: 20px;
-  /* ĐÃ BỎ: transition transform để không phóng to icon */
+    position: relative;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    /* ĐÃ BỎ: transition transform để không phóng to icon */
 }
 
 /* Lớp màu dâng lên (Liquid Fill) */
 .example-2 .icon-content a .filled {
-  position: absolute;
-  top: auto;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  background-color: #000;
-  transition: all 0.3s ease-in-out;
-  z-index: 1;
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background-color: #000;
+    transition: all 0.3s ease-in-out;
+    z-index: 1;
 }
 
 .example-2 .icon-content a:hover .filled {
-  height: 100%;
+    height: 100%;
 }
 
 /* MÀU SẮC RIÊNG */
 .example-2 .icon-content a[data-social="github"] .filled,
 .example-2 .icon-content a[data-social="github"] ~ .tooltip {
-  background-color: #24262a;
+    background-color: #24262a;
 }
 
 .example-2 .icon-content a[data-social="facebook"] .filled,
 .example-2 .icon-content a[data-social="facebook"] ~ .tooltip {
-  background-color: #3b5998;
+    background-color: #3b5998;
 }
 
 .example-2 .icon-content a[data-social="youtube"] .filled,
 .example-2 .icon-content a[data-social="youtube"] ~ .tooltip {
-  background-color: #ff0000;
+    background-color: #ff0000;
 }
 
 .example-2 .icon-content a[data-social="instagram"] .filled,
 .example-2 .icon-content a[data-social="instagram"] ~ .tooltip {
-  background: linear-gradient(45deg, #405de6, #5b51db, #b33ab4, #c135b4, #e1306c, #fd1f1f);
+    background: linear-gradient(45deg, #405de6, #5b51db, #b33ab4, #c135b4, #e1306c, #fd1f1f);
 }
 
 /* Light Mode */
 body.light-mode .example-2 .icon-content a {
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* BACK TO TOP BUTTON */
+.back-to-top-button {
+    position: fixed;
+    right: 1%;
+    bottom: 1%;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgb(20, 20, 20);
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 0px 4px rgba(180, 160, 255, 0.253);
+    cursor: pointer;
+    overflow: hidden;
+
+    opacity: 0;
+    visibility: hidden;
+
+    /* tất cả hiệu ứng sẽ mượt như nhau */
+    transition: opacity 0.6s ease, visibility 0.6s ease, width 0.6s ease, border-radius 0.6s ease, background-color 0.6s ease, transform 0.6s ease;
+}
+
+.back-to-top-button.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top-button_svgIcon {
+    width: 12px;
+    transition: transform 0.6s ease, width 0.6s ease;
+}
+
+.back-to-top-button_svgIcon path {
+    fill: white;
+}
+
+.back-to-top-button:hover {
+    width: 140px;
+    border-radius: 50px;
+    background-color: rgb(181, 160, 255);
+}
+
+.back-to-top-button:hover .back-to-top-button_svgIcon {
+    width: 20px;
+    transform: translateY(-200%);
+}
+
+.back-to-top-button::before {
+    position: absolute;
+    bottom: -20px;
+    content: "Back to Top";
+    color: white;
+    font-size: 0px;
+    transition: font-size 0.6s ease, bottom 0.6s ease, opacity 0.6s ease;
+}
+
+.back-to-top-button:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    bottom: unset;
+}
+
+/* RESPONSIVE FOR BACK TO TOP BUTTON */
+/* TABLET (600px–1023px) */
+@media (max-width: 1023px) {
+    .back-to-top-button {
+        width: 45px;
+        height: 45px;
+        right: 2%;
+        bottom: 2%;
+    }
+
+    .back-to-top-button:hover {
+        width: 120px;
+    }
+
+    .back-to-top-button_svgIcon {
+        width: 11px;
+    }
+
+    .back-to-top-button:hover .back-to-top-button_svgIcon {
+        width: 18px;
+    }
+
+    .back-to-top-button:hover::before {
+        font-size: 12px;
+    }
+}
+
+/* MOBILE (≤ 599px) */
+@media (max-width: 599px) {
+    .back-to-top-button {
+        width: 48px;
+        height: 48px;
+        right: 3%;
+        bottom: 3%;
+        box-shadow: 0px 0px 0px 3px rgba(180, 160, 255, 0.25);
+    }
+
+    .back-to-top-button_svgIcon {
+        width: 20px;
+        height: auto;
+    }
+
+    .back-to-top-button:hover .back-to-top-button_svgIcon {
+        width: 24px;
+        transform: translateY(-150%);
+    }
+
+    .back-to-top-button:hover {
+        width: 110px;
+        border-radius: 40px;
+    }
+
+    .back-to-top-button:hover::before {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 900px) {
+    .back-to-top-button:hover {
+        width: 50px; /* quay về kích thước gốc */
+        border-radius: 50%;
+        background-color: rgb(20, 20, 20);
+    }
+
+    .back-to-top-button:hover .back-to-top-button_svgIcon {
+        width: 18px; /* kích thước chuẩn cho icon trên mobile */
+        transform: none;
+    }
+
+    .back-to-top-button:hover::before {
+        font-size: 0; /* không hiện chữ */
+        opacity: 0;
+    }
 }
