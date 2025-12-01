@@ -286,6 +286,12 @@ function calculateFLSM(mode) {
 
     outputDiv.innerHTML = html;
     addNthSubnetLookup(baseNetworkNum, newCidr, totalNewSubnets, blockSize);
+
+    saveHistory(
+        mode === "num_host" ? "host" : "subnet",
+        `FLSM: ${ipBaseStr}/${baseCidr}`,
+        `Thành công: /${newCidr} (${totalNewSubnets.toLocaleString()} subnets)`
+    );
 }
 
 function calculateVLSM() {
@@ -355,6 +361,8 @@ function calculateVLSM() {
 
     html += `</table></div>`;
     outputDiv.innerHTML = html;
+
+    saveHistory("vlsm", `VLSM: ${ipBaseStr}/${baseCidrStr}`, `Chia ${requests.length} mạng con`);
 }
 
 function addNthSubnetLookup(baseNetworkNum, newCidr, totalSubnets, blockSize) {
@@ -397,15 +405,125 @@ function calculateNthSubnet(baseNetworkNum, blockSize, newCidr, max) {
     `;
 }
 
-window.onscroll = function() {
-    var button = document.getElementById('scrollToTopBtn');
+window.onscroll = function () {
+    var button = document.getElementById("scrollToTopBtn");
     if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-        button.classList.add('show');
+        button.classList.add("show");
     } else {
-        button.classList.remove('show');
+        button.classList.remove("show");
     }
 };
 
 function scrollToTop() {
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ====================================================================
+// 4. QUẢN LÝ LỊCH SỬ (HISTORY MANAGER)
+// ====================================================================
+
+// Mở/Đóng Sidebar
+function toggleHistory() {
+    document.getElementById("history-sidebar").classList.toggle("open");
+    document.getElementById("history-overlay").classList.toggle("active");
+    loadHistory(); // Tải lại dữ liệu mới nhất khi mở
+}
+
+// Hàm lưu lịch sử (Gọi hàm này khi tính toán xong)
+// type: 'host', 'subnet', hoặc 'vlsm' (để hiện màu border)
+function saveHistory(type, title, detail) {
+    // Lấy lịch sử cũ từ bộ nhớ trình duyệt
+    const history = JSON.parse(localStorage.getItem("netcalc_history") || "[]");
+
+    const newItem = {
+        type: type,
+        title: title,
+        detail: detail,
+        time: new Date().toLocaleTimeString(), // Lưu thời gian hiện tại
+    };
+
+    history.unshift(newItem); // Thêm vào đầu danh sách
+    if (history.length > 20) history.pop(); // Chỉ giữ lại 20 cái gần nhất
+
+    localStorage.setItem("netcalc_history", JSON.stringify(history));
+    // Không cần gọi loadHistory() ở đây để đỡ lag, chỉ load khi mở sidebar
+}
+
+// Hàm đọc và hiển thị lịch sử ra HTML
+function loadHistory() {
+    const list = document.getElementById("history-list");
+    const history = JSON.parse(localStorage.getItem("netcalc_history") || "[]");
+
+    if (history.length === 0) {
+        list.innerHTML = '<p class="empty-msg">Chưa có lịch sử tính toán.</p>';
+        return;
+    }
+
+    list.innerHTML = ""; // Xóa cũ
+    history.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = `history-item ${item.type}`; // Thêm class type để tô màu
+        div.innerHTML = `
+            <span class="item-time">${item.time}</span>
+            <span class="item-title">${item.title}</span>
+            <span class="item-detail">${item.detail}</span>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// Xóa toàn bộ lịch sử
+function clearHistory() {
+    const history = localStorage.getItem("netcalc_history");
+
+    if (!history || JSON.parse(history).length === 0) {
+        showToast("Không có lịch sử để xóa!", "error");
+        return;
+    }
+
+    localStorage.removeItem("netcalc_history");
+    loadHistory();
+
+    showToast("Đã xóa toàn bộ lịch sử!", "success");
+}
+
+function showToast(message, type = "success") {
+    const toast = document.createElement("div");
+    toast.className = `toast-modern ${type}`;
+
+    const iconSuccess = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="toast-svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    `;
+
+    const iconError = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="toast-svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 4h.01m-.01-14a9 9 0 100 18 9 9 0 000-18z" />
+        </svg>
+    `;
+
+    toast.innerHTML = `
+        <div class="toast-icon">
+            ${type === "success" ? iconSuccess : iconError}
+        </div>
+        <div class="toast-text">${message}</div>
+        <div class="toast-progress"></div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // show animation
+    setTimeout(() => toast.classList.add("show"), 10);
+
+    // shake if error
+    if (type === "error") {
+        setTimeout(() => toast.classList.add("shake"), 180);
+    }
+
+    // auto remove
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 350);
+    }, 3000);
 }
