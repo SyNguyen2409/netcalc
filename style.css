@@ -1475,3 +1475,13 @@ body.light-mode .example-2 .icon-content a {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #7c6cff, #61d6ff);
 }
+
+/* --- DISABLE SCROLL WHEN OPENING HISTORY SIDEBAR --- */
+body.no-scroll,
+html.no-scroll {
+    overflow: hidden !important;
+}
+.site-content.no-scroll {
+    overflow: hidden !important;
+    height: 100vh; /* chống kéo */
+}

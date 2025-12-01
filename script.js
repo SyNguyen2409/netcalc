@@ -423,10 +423,22 @@ function scrollToTop() {
 // ====================================================================
 
 // Mở/Đóng Sidebar
+const sidebar = document.getElementById("history-sidebar");
+const overlay = document.getElementById("history-overlay");
+const body = document.body;
+
 function toggleHistory() {
-    document.getElementById("history-sidebar").classList.toggle("open");
-    document.getElementById("history-overlay").classList.toggle("active");
-    loadHistory(); // Tải lại dữ liệu mới nhất khi mở
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("active");
+
+    // Khóa / mở khóa cuộn trang chính
+    if (sidebar.classList.contains("open")) {
+        body.classList.add("no-scroll");
+    } else {
+        body.classList.remove("no-scroll");
+    }
+
+    loadHistory();
 }
 
 // Hàm lưu lịch sử (Gọi hàm này khi tính toán xong)
