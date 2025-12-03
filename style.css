@@ -65,8 +65,8 @@ body.light-mode {
 }
 
 /* ========================================= 
-   2. GLOBAL RESET & BODY STYLES
-   ========================================= */
+2. GLOBAL RESET & BODY STYLES
+========================================= */
 
 * {
     box-sizing: border-box;
@@ -100,8 +100,8 @@ html.no-scroll {
 }
 
 /* ========================================= 
-   3. LOADING SCREEN STYLES
-   ========================================= */
+3. LOADING SCREEN STYLES
+========================================= */
 
 #loading-screen {
     position: fixed;
@@ -180,8 +180,8 @@ html.no-scroll {
 }
 
 /* ========================================= 
-   4. BACKGROUND STICKERS
-   ========================================= */
+4. BACKGROUND STICKERS
+========================================= */
 
 .bg-stickers {
     position: fixed;
@@ -272,8 +272,8 @@ body.light-mode .bg-stickers i {
 }
 
 /* ========================================= 
-   5. HEADER SECTION
-   ========================================= */
+5. HEADER SECTION
+========================================= */
 
 .app-header {
     height: 70px;
@@ -389,8 +389,8 @@ body.light-mode .toggle-thumb {
 }
 
 /* ========================================= 
-   6. MAIN CONTAINER & LAYOUT
-   ========================================= */
+6. MAIN CONTAINER & LAYOUT
+========================================= */
 
 main {
     flex: 1;
@@ -490,8 +490,8 @@ body.light-mode .container:hover .hud-corner {
 }
 
 /* ========================================= 
-   7. MODE OPTIONS / RADIO BUTTONS
-   ========================================= */
+7. MODE OPTIONS / RADIO BUTTONS
+========================================= */
 
 .mode-options {
     display: grid;
@@ -576,8 +576,8 @@ body.light-mode .mode-options input:checked + label .mode-title {
 }
 
 /* ========================================= 
-   8. INPUT FIELDS & SLIDERS
-   ========================================= */
+8. INPUT FIELDS & SLIDERS
+========================================= */
 
 input[type="text"] {
     width: 100%;
@@ -636,6 +636,13 @@ body.light-mode .slider-container {
     box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
 }
 
+.slider-number-input.vlsm-hosts {
+    margin-bottom: 0 !important;
+}
+.slider-number-input-line.vlsm-hosts {
+    margin-bottom: 0 !important;
+}
+
 body.light-mode .slider-number-input {
     background: #f1f5f9 !important;
     color: var(--primary);
@@ -651,7 +658,7 @@ body.light-mode .slider-number-input {
 
 .slider-container input[type="range"] {
     flex: 1;
-    width: auto;
+    width: 100%;
     margin-bottom: 0;
     -webkit-appearance: none;
     appearance: none;
@@ -692,8 +699,8 @@ input[type="range"]:hover::-webkit-slider-thumb {
 }
 
 /* ========================================= 
-   9. VLSM FIXED ALIGNMENT
-   ========================================= */
+9. VLSM FIXED ALIGNMENT
+========================================= */
 
 .vlsm-entry {
     display: flex;
@@ -714,7 +721,7 @@ input[type="range"]:hover::-webkit-slider-thumb {
     flex: 2;
     margin-bottom: 0 !important;
     height: 54px;
-    padding: 0 15px;
+    padding: 15px;
 }
 
 .vlsm-entry .slider-number-input {
@@ -734,8 +741,8 @@ input[type="range"]:hover::-webkit-slider-thumb {
 }
 
 /* ========================================= 
-   10. BUTTONS
-   ========================================= */
+10. BUTTONS
+========================================= */
 
 button {
     width: 100%;
@@ -780,8 +787,8 @@ button:hover::after {
 }
 
 /* ========================================= 
-   11. OUTPUT AREA & TABLES
-   ========================================= */
+11. OUTPUT AREA & TABLES
+========================================= */
 
 .output-wrapper {
     border: 1px solid var(--glass-border);
@@ -870,8 +877,8 @@ body.light-mode .output-area th {
 }
 
 /* ========================================= 
-   12. FOOTER SECTION
-   ========================================= */
+12. FOOTER SECTION
+========================================= */
 
 .app-footer {
     background: var(--header-bg);
@@ -971,8 +978,8 @@ body.light-mode .output-area th {
 }
 
 /* ========================================= 
-   17. TOAST NOTIFICATIONS
-   ========================================= */
+17. TOAST NOTIFICATIONS
+========================================= */
 
 .toast-modern {
     position: fixed;
@@ -1084,8 +1091,8 @@ body.light-mode .output-area th {
 }
 
 /* ========================================= 
-   19. SCROLLBAR STYLING
-   ========================================= */
+19. SCROLLBAR STYLING
+========================================= */
 
 ::-webkit-scrollbar {
     width: 6px;
@@ -1106,8 +1113,8 @@ body.light-mode .output-area th {
 }
 
 /* ========================================= 
-   15. RESPONSIVE STYLES
-   ========================================= */
+15. RESPONSIVE STYLES
+========================================= */
 
 /* Tablet (600px–1023px) */
 @media (max-width: 1023px) {
@@ -1132,6 +1139,16 @@ body.light-mode .output-area th {
 
     .back-to-top-button:hover::before {
         font-size: 12px;
+    }
+}
+
+@media (max-width: 450px) {
+    .slider-container input[type="range"] {
+        display: none;
+    }
+    .slider-number-input {
+        flex: 1 !important;
+        width: 100% !important;
     }
 }
 
@@ -1214,13 +1231,12 @@ body.light-mode .output-area th {
     .vlsm-entry .slider-container,
     .vlsm-entry button {
         width: 100% !important;
-        margin-bottom: 10px !important;
     }
 }
 
 /* ========================================= 
-   13. SOCIAL ICONS (LIQUID FILL)
-   ========================================= */
+13. SOCIAL ICONS (LIQUID FILL)
+========================================= */
 
 ul.example-2 {
     list-style: none;
@@ -1336,8 +1352,8 @@ body.light-mode .example-2 .icon-content a {
 }
 
 /* ========================================= 
-   14. BACK TO TOP BUTTON
-   ========================================= */
+14. BACK TO TOP BUTTON
+========================================= */
 
 .back-to-top-button {
     position: fixed;
@@ -1495,8 +1511,8 @@ body.light-mode .example-2 .icon-content a {
 }
 
 /* ========================================= 
-   16. HISTORY SIDEBAR
-   ========================================= */
+16. HISTORY SIDEBAR
+========================================= */
 
 /* Overlay */
 #history-overlay {

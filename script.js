@@ -210,7 +210,7 @@ function addVLSMEntry() {
         }" class="vlsm-name">
         <div class="slider-container">
             <input type="number" id="${inputId}" class="slider-number-input vlsm-hosts" min="2" value="10">
-            <input type="range" id="${sliderId}" min="2" max="1024" value="10" step="1">
+            <input type="range" id="${sliderId}" class="slider-number-input-line vlsm-hosts" min="2" max="1024" value="10" step="1">
         </div>
         <button onclick="this.parentNode.remove()">${typeof getTranslation === "function" ? getTranslation("delete") : "Del"}</button>
     `;
