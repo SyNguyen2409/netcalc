@@ -1,6 +1,6 @@
-// ====================================================================
-// 1. HELPER FUNCTIONS (MATH LOGIC)
-// ====================================================================
+// ========================================
+// 1. HELPER FUNCTIONS - IP & MATH LOGIC
+// ========================================
 
 function ipToNum(ip) {
     if (!ip) return 0;
@@ -32,17 +32,19 @@ function cidrToMask(cidr) {
     return numToIp(maskNum);
 }
 
-// --- TYPING EFFECT ENGINE (LOOPING) ---
-let typingTimeout; // Biến toàn cục để kiểm soát tiến trình
+// ========================================
+// 2. TYPING EFFECT ENGINE
+// ========================================
+
+let typingTimeout;
 
 function typeWriter(text, elementId, typeSpeed = 50, deleteSpeed = 30, waitTime = 2000) {
     const element = document.getElementById(elementId);
     if (!element) return;
 
-    // Reset trạng thái
     clearTimeout(typingTimeout);
     element.innerHTML = "";
-    element.classList.add("typing-cursor"); // Bật con trỏ nhấp nháy
+    element.classList.add("typing-cursor");
 
     let i = 0;
     let isDeleting = false;
@@ -51,20 +53,16 @@ function typeWriter(text, elementId, typeSpeed = 50, deleteSpeed = 30, waitTime 
         const currentString = element.innerHTML;
 
         if (!isDeleting && i < text.length) {
-            // ĐANG GÕ CHỮ
             element.innerHTML += text.charAt(i);
             i++;
             typingTimeout = setTimeout(loop, typeSpeed);
         } else if (!isDeleting && i === text.length) {
-            // GÕ XONG -> ĐỢI 1 CHÚT
             isDeleting = true;
             typingTimeout = setTimeout(loop, waitTime);
         } else if (isDeleting && currentString.length > 0) {
-            // ĐANG XÓA LÙI (BACKSPACE)
             element.innerHTML = currentString.substring(0, currentString.length - 1);
             typingTimeout = setTimeout(loop, deleteSpeed);
         } else {
-            // XÓA XONG -> GÕ LẠI TỪ ĐẦU
             isDeleting = false;
             i = 0;
             typingTimeout = setTimeout(loop, 500);
@@ -74,7 +72,6 @@ function typeWriter(text, elementId, typeSpeed = 50, deleteSpeed = 30, waitTime 
     loop();
 }
 
-// Hàm dừng hiệu ứng khi bấm nút tính toán
 function stopTypingEffect() {
     clearTimeout(typingTimeout);
     const output = document.getElementById("output-area");
@@ -86,34 +83,44 @@ function setupSyncedInputs(sliderId, numberId) {
     const numberInput = document.getElementById(numberId);
     if (!slider || !numberInput) return;
 
+    const min = parseInt(slider.min || 0);
+    const max = parseInt(slider.max || 10000);
+
     slider.addEventListener("input", function () {
         numberInput.value = this.value;
     });
 
     numberInput.addEventListener("input", function () {
         let val = parseInt(this.value);
-        if (isNaN(val)) val = parseInt(slider.min);
-        if (val > parseInt(slider.max)) slider.value = slider.max;
-        else slider.value = val;
+        if (isNaN(val)) val = min;
+        if (val > max) {
+            numberInput.value = max;
+            slider.value = max;
+        } else if (val < min) {
+            numberInput.value = min;
+            slider.value = min;
+        } else {
+            slider.value = val;
+        }
     });
 }
 
-// ====================================================================
-// 2. UI & LOGIC
-// ====================================================================
+// ========================================
+// 3. INITIALIZATION & UI EVENTS
+// ========================================
 
 document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
-        document.body.classList.remove("loading-active"); // Cho phép cuộn lại
-        document.body.classList.add("loaded"); // Kích hoạt hiệu ứng hiện nội dung
-    }, 1500); // 1500ms = 1.5 giây
+        document.body.classList.remove("loading-active");
+        document.body.classList.add("loaded");
+    }, 1500);
 
+    if (typeof loadLanguagePreference === "function") loadLanguagePreference();
+    if (typeof updateUIText === "function") updateUIText();
     updateInputArea();
-    updateInputArea();
+
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "light") {
-        document.body.classList.add("light-mode");
-    }
+    if (savedTheme === "light") document.body.classList.add("light-mode");
 });
 
 function toggleTheme() {
@@ -127,9 +134,9 @@ function updateInputArea() {
 
     const mode = modeElement.value;
     const inputArea = document.getElementById("input-area");
+    if (!inputArea) return;
 
-    // Kích hoạt hiệu ứng gõ lặp lại
-    typeWriter("system@netcalc:~$ Ready for input...", "output-area");
+    typeWriter(typeof getTranslation === "function" ? getTranslation("readyForInput") : "system@netcalc:~$ Ready for input...", "output-area");
 
     const lookupArea = document.getElementById("subnet-n-lookup");
     if (lookupArea) lookupArea.remove();
@@ -138,38 +145,40 @@ function updateInputArea() {
 
     if (mode === "num_host") {
         html = `
-            <h2><i class="fa-solid fa-desktop"></i> Host Details</h2>
-            <p>Major Network (CIDR):</p>
+            <h2><i class="fa-solid fa-desktop"></i> ${typeof getTranslation === "function" ? getTranslation("hostDetails") : "Host Details"}</h2>
+            <p>${typeof getTranslation === "function" ? getTranslation("majorNetwork") : "Major Network (CIDR)"}:</p>
             <input type="text" id="network-base" placeholder="e.g. 192.168.1.0/24">
-            <p>Hosts per Subnet (Minimum):</p>
+            <p>${typeof getTranslation === "function" ? getTranslation("hostsPerSubnet") : "Hosts per Subnet (Minimum)"}:</p>
             <div class="slider-container">
                 <input type="number" id="hosts-needed" class="slider-number-input" min="2" max="8000" value="50">
-                <input type="range" id="hosts-needed-slider" min="2" max="8000" value="50" step="1">
+                <input type="range" id="hosts-needed-slider" min="2" max="1024" value="50" step="1">
             </div>
-            <button onclick="calculateFLSM('num_host')">CALCULATE</button>
+            <button onclick="calculateFLSM('num_host')">${typeof getTranslation === "function" ? getTranslation("calculate") : "Calculate"}</button>
         `;
     } else if (mode === "num_subnet") {
         html = `
-            <h2><i class="fa-solid fa-sitemap"></i> Subnet Details</h2>
-            <p>Major Network (CIDR):</p>
+            <h2><i class="fa-solid fa-sitemap"></i> ${typeof getTranslation === "function" ? getTranslation("subnetDetails") : "Subnet Details"}</h2>
+            <p>${typeof getTranslation === "function" ? getTranslation("majorNetwork") : "Major Network (CIDR)"}:</p>
             <input type="text" id="network-base" placeholder="e.g. 172.16.0.0/16">
-            <p>Number of Subnets Needed:</p>
+            <p>${typeof getTranslation === "function" ? getTranslation("numSubnetsNeeded") : "Number of Subnets Needed"}:</p>
             <div class="slider-container">
                 <input type="number" id="subnets-needed" class="slider-number-input" min="2" max="1024" value="4">
                 <input type="range" id="subnets-needed-slider" min="2" max="1024" value="4" step="1">
             </div>
-            <button onclick="calculateFLSM('num_subnet')">CALCULATE</button>
+            <button onclick="calculateFLSM('num_subnet')">${typeof getTranslation === "function" ? getTranslation("calculate") : "Calculate"}</button>
         `;
     } else if (mode === "vlsm") {
         html = `
-            <h2><i class="fa-solid fa-layer-group"></i> VLSM Config</h2>
-            <p>Major Network Address:</p>
+            <h2><i class="fa-solid fa-layer-group"></i> ${typeof getTranslation === "function" ? getTranslation("vlsmConfig") : "VLSM Config"}</h2>
+            <p>${typeof getTranslation === "function" ? getTranslation("majorNetworkAddress") : "Major Network Address"}:</p>
             <input type="text" id="network-base-vlsm" placeholder="e.g. 10.0.0.0/8">
             <div id="vlsm-requests">
-                <p>Subnet Requirements:</p>
+                <p>${typeof getTranslation === "function" ? getTranslation("subnetRequirements") : "Subnet Requirements"}:</p>
             </div>
-            <button onclick="addVLSMEntry()" style="background: linear-gradient(90deg, #3b82f6, #00f2ff); margin-bottom: 15px;">+ Add Subnet</button>
-            <button onclick="calculateVLSM()">CALCULATE VLSM</button>
+            <button onclick="addVLSMEntry()" style="background: linear-gradient(90deg, #3b82f6, #00f2ff); margin-bottom: 15px;">
+                ${typeof getTranslation === "function" ? getTranslation("addSubnet") : "+ Add subnet"}
+            </button>
+            <button onclick="calculateVLSM()">${typeof getTranslation === "function" ? getTranslation("calculateVlsm") : "Calculate VLSM"}</button>
         `;
     }
 
@@ -182,6 +191,8 @@ function updateInputArea() {
 
 function addVLSMEntry() {
     const requestsDiv = document.getElementById("vlsm-requests");
+    if (!requestsDiv) return;
+
     const newEntry = document.createElement("div");
     newEntry.className = "vlsm-entry";
 
@@ -190,64 +201,93 @@ function addVLSMEntry() {
     const inputId = `vlsm-input-${uniqueId}`;
 
     newEntry.innerHTML = `
-        <input type="text" placeholder="Name (e.g. Sales)" class="vlsm-name">
+        <input type="text" placeholder="${
+            typeof getTranslation === "function" ? getTranslation("nameExample") : "Name (e.g. Sales)"
+        }" class="vlsm-name">
         <div class="slider-container">
             <input type="number" id="${inputId}" class="slider-number-input vlsm-hosts" min="2" value="10">
-            <input type="range" id="${sliderId}" min="2" max="4000" value="10" step="1">
+            <input type="range" id="${sliderId}" min="2" max="1024" value="10" step="1">
         </div>
-        <button onclick="this.parentNode.remove()">Del</button>
+        <button onclick="this.parentNode.remove()">${typeof getTranslation === "function" ? getTranslation("delete") : "Del"}</button>
     `;
     requestsDiv.appendChild(newEntry);
     setupSyncedInputs(sliderId, inputId);
 }
 
-// ====================================================================
-// 3. CORE LOGIC
-// ====================================================================
+// ========================================
+// 4. CALCULATION FUNCTIONS
+// ========================================
 
 function calculateFLSM(mode) {
-    // Dừng hiệu ứng gõ chữ ngay lập tức
     stopTypingEffect();
 
-    const baseInput = document.getElementById("network-base").value.trim();
+    const baseInputEl = document.getElementById("network-base");
     const outputDiv = document.getElementById("output-area");
+    if (!outputDiv) return;
 
+    const baseInput = baseInputEl ? baseInputEl.value.trim() : "";
     const oldLookup = document.getElementById("subnet-n-lookup");
     if (oldLookup) oldLookup.remove();
 
-    if (!baseInput.includes("/")) {
-        outputDiv.innerHTML = '<span style="color:var(--danger)">ERROR: Invalid format. Use IP/CIDR (e.g. 192.168.1.0/24)</span>';
+    if (!baseInput || !baseInput.includes("/")) {
+        outputDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("invalidFormat") : "Invalid network format"
+        }</span>`;
         return;
     }
 
     const [ipBaseStr, baseCidrStr] = baseInput.split("/");
     const baseCidr = parseInt(baseCidrStr);
-    const baseNetworkNum = getNetworkAddress(ipBaseStr, baseCidr);
-    const normalizedIP = numToIp(baseNetworkNum);
-
-    if (baseCidr < 0 || baseCidr > 32) {
-        outputDiv.innerHTML = '<span style="color:var(--danger)">ERROR: Invalid CIDR (0-32)</span>';
+    if (isNaN(baseCidr) || baseCidr < 0 || baseCidr > 32) {
+        outputDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("invalidCidr") : "Invalid CIDR"
+        }</span>`;
         return;
     }
+
+    const baseNetworkNum = getNetworkAddress(ipBaseStr, baseCidr);
+    const normalizedIP = numToIp(baseNetworkNum);
 
     let neededValue, newCidr;
 
     if (mode === "num_subnet") {
-        neededValue = parseInt(document.getElementById("subnets-needed").value);
+        const subEl = document.getElementById("subnets-needed");
+        neededValue = subEl ? parseInt(subEl.value) : NaN;
+        if (isNaN(neededValue) || neededValue < 1) {
+            outputDiv.innerHTML = `<span style="color:var(--danger)">${
+                typeof getTranslation === "function" ? getTranslation("invalidRequest") : "Invalid number of subnets"
+            }</span>`;
+            return;
+        }
         const borrowedBits = Math.ceil(Math.log2(neededValue));
         newCidr = baseCidr + borrowedBits;
     } else if (mode === "num_host") {
-        neededValue = parseInt(document.getElementById("hosts-needed").value);
+        const hostEl = document.getElementById("hosts-needed");
+        neededValue = hostEl ? parseInt(hostEl.value) : NaN;
+        if (isNaN(neededValue) || neededValue < 1) {
+            outputDiv.innerHTML = `<span style="color:var(--danger)">${
+                typeof getTranslation === "function" ? getTranslation("invalidRequest") : "Invalid number of hosts"
+            }</span>`;
+            return;
+        }
         const hostBits = Math.ceil(Math.log2(neededValue + 2));
         newCidr = 32 - hostBits;
+    } else {
+        outputDiv.innerHTML = `<span style="color:var(--danger)">Unknown mode</span>`;
+        return;
     }
 
     if (newCidr > 32) {
-        outputDiv.innerHTML = `<span style="color:var(--danger)">ERROR: Request too large (Mask /${newCidr} > /32).</span>`;
+        outputDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("requestTooLarge", newCidr) : "Request too large"
+        }</span>`;
         return;
     }
+
     if (newCidr < baseCidr) {
-        outputDiv.innerHTML = `<span style="color:var(--danger)">ERROR: Request smaller than original network.</span>`;
+        outputDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("invalidRequest") : "Requested subnet is larger than base network"
+        }</span>`;
         return;
     }
 
@@ -257,15 +297,27 @@ function calculateFLSM(mode) {
     const usableHosts = hostBits > 1 ? Math.pow(2, hostBits) - 2 : 0;
 
     let html = `<div style="font-family: 'Fira Code', monospace;">`;
-    html += `<strong>CALCULATION RESULTS:</strong><br>`;
+    html += `<strong>${typeof getTranslation === "function" ? getTranslation("calculationResults") : "Calculation results"}</strong><br>`;
     html += `---------------------------------<br>`;
-    html += `Major Network:  <span style="color:var(--primary)">${normalizedIP}/${baseCidr}</span><br>`;
-    html += `New Mask:       <span style="color:var(--accent)">${newMask} (/${newCidr})</span><br>`;
-    html += `Total Subnets:  ${totalNewSubnets.toLocaleString("en-US")}<br>`;
-    html += `Hosts/Subnet:   ${usableHosts.toLocaleString("en-US")}<br><br>`;
+    html += `${
+        typeof getTranslation === "function" ? getTranslation("majorNetworkLabel") : "Major network"
+    }:  <span style="color:var(--primary)">${normalizedIP}/${baseCidr}</span><br>`;
+    html += `${
+        typeof getTranslation === "function" ? getTranslation("newMask") : "New mask"
+    }:       <span style="color:var(--accent)">${newMask} (/${newCidr})</span><br>`;
+    html += `${typeof getTranslation === "function" ? getTranslation("totalSubnets") : "Total subnets"}:  ${totalNewSubnets.toLocaleString(
+        "en-US"
+    )}<br>`;
+    html += `${typeof getTranslation === "function" ? getTranslation("hostsPerSubnetLabel") : "Hosts per subnet"}:   ${usableHosts.toLocaleString(
+        "en-US"
+    )}<br><br>`;
 
-    html += `<strong>FIRST 5 SUBNETS:</strong><br>`;
-    html += `<table><tr><th>ID</th><th>Network Address</th><th>Usable Range</th><th>Broadcast</th></tr>`;
+    html += `<strong>${typeof getTranslation === "function" ? getTranslation("first5Subnets") : "First 5 subnets"}</strong><br>`;
+    html += `<table><tr><th>${typeof getTranslation === "function" ? getTranslation("id") : "ID"}</th><th>${
+        typeof getTranslation === "function" ? getTranslation("networkAddress") : "Network"
+    }</th><th>${typeof getTranslation === "function" ? getTranslation("usableRange") : "Usable range"}</th><th>${
+        typeof getTranslation === "function" ? getTranslation("broadcast") : "Broadcast"
+    }</th></tr>`;
 
     const blockSize = Math.pow(2, 32 - newCidr);
 
@@ -285,50 +337,86 @@ function calculateFLSM(mode) {
     html += `</div>`;
 
     outputDiv.innerHTML = html;
-    addNthSubnetLookup(baseNetworkNum, newCidr, totalNewSubnets, blockSize);
 
-    saveHistory(
-        mode === "num_host" ? "host" : "subnet",
-        `FLSM: ${ipBaseStr}/${baseCidr}`,
-        `Thành công: /${newCidr} (${totalNewSubnets.toLocaleString()} subnets)`
-    );
+    if (typeof saveHistory === "function") {
+        saveHistory(
+            mode === "num_host" ? "host" : "subnet",
+            `FLSM: ${ipBaseStr}/${baseCidr}`,
+            `Thành công: /${newCidr} (${totalNewSubnets.toLocaleString()} subnets)`,
+            outputDiv.innerHTML
+        );
+    }
+
+    addNthSubnetLookup(baseNetworkNum, newCidr, totalNewSubnets, blockSize);
 }
 
 function calculateVLSM() {
-    stopTypingEffect(); // Dừng typing
+    stopTypingEffect();
 
-    const baseInput = document.getElementById("network-base-vlsm").value.trim();
+    const baseInputEl = document.getElementById("network-base");
     const outputDiv = document.getElementById("output-area");
-    const requestElements = document.querySelectorAll(".vlsm-entry");
+    if (!baseInputEl || !outputDiv) return;
 
-    if (!baseInput.includes("/")) {
-        outputDiv.innerHTML = '<span style="color:var(--danger)">ERROR: Invalid IP format.</span>';
+    const baseInput = baseInputEl.value.trim();
+    if (!baseInput || !baseInput.includes("/")) {
+        outputDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("invalidFormat") : "Invalid network format"
+        }</span>`;
         return;
     }
 
     const [ipBaseStr, baseCidrStr] = baseInput.split("/");
     const baseCidr = parseInt(baseCidrStr);
-    let currentNetworkNum = getNetworkAddress(ipBaseStr, baseCidr);
-    const maxIP = currentNetworkNum + Math.pow(2, 32 - baseCidr);
-
-    const requests = Array.from(requestElements)
-        .map((el) => ({
-            name: el.querySelector(".vlsm-name").value || "Unnamed",
-            hosts: parseInt(el.querySelector(".vlsm-hosts").value),
-        }))
-        .filter((req) => !isNaN(req.hosts) && req.hosts > 0);
-
-    if (requests.length === 0) {
-        outputDiv.innerHTML = '<span style="color:var(--danger)">WARNING: Please add at least 1 subnet requirement.</span>';
+    if (isNaN(baseCidr) || baseCidr < 0 || baseCidr > 32) {
+        outputDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("invalidCidr") : "Invalid CIDR"
+        }</span>`;
         return;
     }
 
+    const baseNetworkNum = getNetworkAddress(ipBaseStr, baseCidr);
+    const maxIP = baseNetworkNum + Math.pow(2, 32 - baseCidr);
+    let currentNetworkNum = baseNetworkNum;
+
+    const requestsDiv = document.getElementById("vlsm-requests");
+    if (!requestsDiv) return;
+
+    const requests = [];
+    requestsDiv.querySelectorAll(".vlsm-entry").forEach((entry) => {
+        const nameInput = entry.querySelector(".vlsm-name");
+        const hostsInput = entry.querySelector(".vlsm-hosts");
+        const name = nameInput ? nameInput.value.trim() : "";
+        const hosts = hostsInput ? parseInt(hostsInput.value) : NaN;
+
+        if (name && !isNaN(hosts) && hosts > 0) {
+            requests.push({ name, hosts });
+        }
+    });
+
+    if (requests.length === 0) {
+        outputDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("pleaseAddVLSMEntry") : "Please add a VLSM entry"
+        }</span>`;
+        return;
+    }
+
+    // Sort by host count descending (largest subnets first)
     requests.sort((a, b) => b.hosts - a.hosts);
 
     let html = `<div style="font-family: 'Fira Code', monospace;">`;
-    html += `<strong>VLSM TABLE (Optimized):</strong><br>`;
-    html += `MAJOR NETWORK: <span style="color:var(--primary)">${numToIp(currentNetworkNum)}/${baseCidr}</span><br>`;
-    html += `<table><tr><th>Name</th><th>Hosts</th><th>CIDR</th><th>Network ID</th><th>Range IP</th><th>Broadcast</th></tr>`;
+    html += `<strong>${typeof getTranslation === "function" ? getTranslation("vlsmResults") : "VLSM allocation results"}</strong><br>`;
+    html += `---------------------------------<br>`;
+    html += `${typeof getTranslation === "function" ? getTranslation("baseNetwork") : "Base network"}:  <span style="color:var(--primary)">${numToIp(
+        baseNetworkNum
+    )}/${baseCidr}</span><br><br>`;
+
+    html += `<table><tr><th>${typeof getTranslation === "function" ? getTranslation("name") : "Name"}</th><th>${
+        typeof getTranslation === "function" ? getTranslation("hostsPerSubnetLabel") : "Hosts"
+    }</th><th>${typeof getTranslation === "function" ? getTranslation("cidr") : "CIDR"}</th><th>${
+        typeof getTranslation === "function" ? getTranslation("networkAddress") : "Network"
+    }</th><th>${typeof getTranslation === "function" ? getTranslation("usableRange") : "Range"}</th><th>${
+        typeof getTranslation === "function" ? getTranslation("broadcast") : "Broadcast"
+    }</th></tr>`;
 
     let errorFlag = false;
 
@@ -338,7 +426,9 @@ function calculateVLSM() {
         const blockSize = Math.pow(2, hostBits);
 
         if (currentNetworkNum + blockSize > maxIP) {
-            html += `<tr><td>${req.name}</td><td>${req.hosts}</td><td colspan="4" style="color:var(--danger)">OUT OF IP SPACE!</td></tr>`;
+            html += `<tr><td>${req.name}</td><td>${req.hosts}</td><td colspan="4" style="color:var(--danger)">${
+                typeof getTranslation === "function" ? getTranslation("outOfSpace") : "Out of space"
+            }</td></tr>`;
             errorFlag = true;
             return;
         }
@@ -362,51 +452,70 @@ function calculateVLSM() {
     html += `</table></div>`;
     outputDiv.innerHTML = html;
 
-    saveHistory("vlsm", `VLSM: ${ipBaseStr}/${baseCidrStr}`, `Chia ${requests.length} mạng con`);
+    if (!errorFlag) {
+        outputDiv.innerHTML += `<br><span style="color:var(--success)">${
+            typeof getTranslation === "function" ? getTranslation("successAllFulfilled") : "All requests fulfilled"
+        }</span>`;
+    } else {
+        outputDiv.innerHTML += `<br><span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("notEnoughSpace") : "Not enough space in base network"
+        }</span>`;
+    }
+
+    if (typeof saveHistory === "function") {
+        saveHistory("vlsm", `VLSM: ${ipBaseStr}/${baseCidr}`, `Thành công`, outputDiv.innerHTML);
+    }
 }
 
 function addNthSubnetLookup(baseNetworkNum, newCidr, totalSubnets, blockSize) {
-    const inputArea = document.getElementById("input-area");
-    const existingLookup = document.getElementById("subnet-n-lookup");
-    if (existingLookup) existingLookup.remove();
+    const outputDiv = document.getElementById("output-area");
+    if (!outputDiv) return;
 
-    const lookupHtml = `
-        <div class="container" id="subnet-n-lookup" style="margin-top: 30px; border-color: var(--accent);">
-            <h2>🔍 Subnet Lookup Tool</h2>
-            <p>Find Subnet #N (Range: 1 - ${totalSubnets.toLocaleString("en-US")}):</p>
-            <div class="slider-container">
-                <input type="number" id="subnet-index" class="slider-number-input" min="1" max="${totalSubnets}" value="1">
-                <input type="range" id="subnet-index-slider" min="1" max="${totalSubnets}" value="1" step="1">
-            </div>
-            <button onclick="calculateNthSubnet(${baseNetworkNum}, ${blockSize}, ${newCidr}, ${totalSubnets})">SEARCH</button>
-            <div id="nth-subnet-result" style="display: none; margin-top: 15px;"></div>
-        </div>
-    `;
-    inputArea.insertAdjacentHTML("afterend", lookupHtml);
-    setupSyncedInputs("subnet-index-slider", "subnet-index");
+    let html = `<div id="subnet-n-lookup" style="margin-top: 20px; padding: 15px; border: 1px solid var(--accent); border-radius: 5px;">`;
+    html += `<strong>${typeof getTranslation === "function" ? getTranslation("lookupSubnet") : "Find specific subnet"}</strong><br>`;
+    html += `Subnet ID: <input type="number" id="subnet-id" min="0" max="${totalSubnets - 1}" style="width:80px;" placeholder="0-${
+        totalSubnets - 1
+    }"/>`;
+    html += ` <button onclick="calculateNthSubnet(${baseNetworkNum}, ${newCidr}, ${blockSize}, ${totalSubnets})" style="margin-left:10px;">`;
+    html += `${typeof getTranslation === "function" ? getTranslation("lookupSubnet") : "Lookup"}</button>`;
+    html += `<div id="subnet-n-result" style="margin-top:10px;"></div>`;
+    html += `</div>`;
+
+    outputDiv.innerHTML += html;
 }
 
-function calculateNthSubnet(baseNetworkNum, blockSize, newCidr, max) {
-    let n = parseInt(document.getElementById("subnet-index").value);
-    if (isNaN(n) || n < 1) n = 1;
-    if (n > max) n = max;
+function calculateNthSubnet(baseNetNum, cidr, blockSize, totalSubnets) {
+    const idEl = document.getElementById("subnet-id");
+    const resultDiv = document.getElementById("subnet-n-result");
+    if (!idEl || !resultDiv) return;
 
-    const net = baseNetworkNum + (n - 1) * blockSize;
-    const broad = net + blockSize - 1;
-    const firstIp = net + 1;
-    const lastIp = broad - 1;
+    const id = parseInt(idEl.value);
+    if (isNaN(id) || id < 0 || id >= totalSubnets) {
+        resultDiv.innerHTML = `<span style="color:var(--danger)">${
+            typeof getTranslation === "function" ? getTranslation("invalidSubnetId") : "Invalid subnet ID"
+        }</span>`;
+        return;
+    }
 
-    document.getElementById("nth-subnet-result").style.display = "block";
-    document.getElementById("nth-subnet-result").innerHTML = `
-        <strong>Result for Subnet #${n}:</strong><br>
-        Network ID: <span style="color: var(--primary)">${numToIp(net)}</span><br>
-        Range IP:   ${numToIp(firstIp)} ➝ ${numToIp(lastIp)}<br>
-        Broadcast:  ${numToIp(broad)}
-    `;
+    const currentNetNum = baseNetNum + id * blockSize;
+    const broadcastNum = currentNetNum + blockSize - 1;
+
+    let html = `<strong>${typeof getTranslation === "function" ? getTranslation("subnetDetails") : "Subnet details"}</strong><br>`;
+    html += `${typeof getTranslation === "function" ? getTranslation("networkAddress") : "Network"}:  ${numToIp(currentNetNum)}/${cidr}<br>`;
+    html += `${typeof getTranslation === "function" ? getTranslation("firstHost") : "First host"}:  ${numToIp(currentNetNum + 1)}<br>`;
+    html += `${typeof getTranslation === "function" ? getTranslation("lastHost") : "Last host"}:   ${numToIp(broadcastNum - 1)}<br>`;
+    html += `${typeof getTranslation === "function" ? getTranslation("broadcast") : "Broadcast"}:  ${numToIp(broadcastNum)}`;
+
+    resultDiv.innerHTML = html;
 }
+
+// ========================================
+// 5. SCROLL TO TOP BUTTON
+// ========================================
 
 window.onscroll = function () {
-    var button = document.getElementById("scrollToTopBtn");
+    const button = document.getElementById("scrollToTopBtn");
+    if (!button) return;
     if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
         button.classList.add("show");
     } else {
@@ -418,86 +527,163 @@ function scrollToTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ====================================================================
-// 4. QUẢN LÝ LỊCH SỬ (HISTORY MANAGER)
-// ====================================================================
-
-// Mở/Đóng Sidebar
-const sidebar = document.getElementById("history-sidebar");
-const overlay = document.getElementById("history-overlay");
-const body = document.body;
+// ========================================
+// 6. HISTORY MANAGEMENT
+// ========================================
 
 function toggleHistory() {
+    const sidebar = document.getElementById("history-sidebar");
+    const overlay = document.getElementById("history-overlay");
+    if (!sidebar || !overlay) {
+        showToast(typeof getTranslation === "function" ? getTranslation("historyMissing") : "History UI not found", "error");
+        return;
+    }
+
     sidebar.classList.toggle("open");
     overlay.classList.toggle("active");
 
-    // Khóa / mở khóa cuộn trang chính
     if (sidebar.classList.contains("open")) {
-        body.classList.add("no-scroll");
+        document.body.classList.add("no-scroll");
     } else {
-        body.classList.remove("no-scroll");
+        document.body.classList.remove("no-scroll");
     }
 
     loadHistory();
 }
 
-// Hàm lưu lịch sử (Gọi hàm này khi tính toán xong)
-// type: 'host', 'subnet', hoặc 'vlsm' (để hiện màu border)
-function saveHistory(type, title, detail) {
-    // Lấy lịch sử cũ từ bộ nhớ trình duyệt
-    const history = JSON.parse(localStorage.getItem("netcalc_history") || "[]");
+function saveHistory(type, title, detail, fullHTML = "") {
+    try {
+        const history = JSON.parse(localStorage.getItem("netcalc_history") || "[]");
 
-    const newItem = {
-        type: type,
-        title: title,
-        detail: detail,
-        time: new Date().toLocaleTimeString(), // Lưu thời gian hiện tại
-    };
+        const newItem = {
+            id: Date.now(),
+            type: type,
+            title: title,
+            detail: detail,
+            fullHTML: fullHTML,
+            time: new Date().toLocaleTimeString(),
+        };
 
-    history.unshift(newItem); // Thêm vào đầu danh sách
-    if (history.length > 20) history.pop(); // Chỉ giữ lại 20 cái gần nhất
-
-    localStorage.setItem("netcalc_history", JSON.stringify(history));
-    // Không cần gọi loadHistory() ở đây để đỡ lag, chỉ load khi mở sidebar
+        history.unshift(newItem);
+        if (history.length > 50) history.pop();
+        localStorage.setItem("netcalc_history", JSON.stringify(history));
+    } catch (e) {
+        console.error("saveHistory error:", e);
+    }
 }
 
-// Hàm đọc và hiển thị lịch sử ra HTML
 function loadHistory() {
     const list = document.getElementById("history-list");
-    const history = JSON.parse(localStorage.getItem("netcalc_history") || "[]");
+    if (!list) return;
 
-    if (history.length === 0) {
-        list.innerHTML = '<p class="empty-msg">Chưa có lịch sử tính toán.</p>';
+    let history = [];
+    try {
+        history = JSON.parse(localStorage.getItem("netcalc_history") || "[]");
+    } catch (e) {
+        history = [];
+    }
+
+    if (!history.length) {
+        list.innerHTML = `<p class="empty-msg">Chưa có lịch sử tính toán.</p>`;
         return;
     }
 
-    list.innerHTML = ""; // Xóa cũ
-    history.forEach((item) => {
+    list.innerHTML = "";
+    history.forEach((item, index) => {
         const div = document.createElement("div");
-        div.className = `history-item ${item.type}`; // Thêm class type để tô màu
-        div.innerHTML = `
-            <span class="item-time">${item.time}</span>
-            <span class="item-title">${item.title}</span>
-            <span class="item-detail">${item.detail}</span>
+        div.className = `history-item ${item.type}`;
+        div.style.animationDelay = `${index * 30}ms`;
+
+        const left = document.createElement("div");
+        left.className = "history-left";
+
+        const time = document.createElement("div");
+        time.className = "item-time";
+        time.textContent = item.time;
+
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = item.title;
+
+        const detail = document.createElement("div");
+        detail.className = "item-detail";
+        detail.textContent = item.detail;
+
+        left.appendChild(time);
+        left.appendChild(title);
+        left.appendChild(detail);
+
+        const btn = document.createElement("button");
+        btn.className = "delete-button delete-one";
+        btn.setAttribute("aria-label", "Delete item");
+        btn.innerHTML = `
+            <svg class="trash-svg" viewBox="0 -10 64 74" xmlns="http://www.w3.org/2000/svg">
+                <g id="trash-can">
+                    <rect x="16" y="24" width="32" height="30" rx="3" ry="3" fill="#e74c3c"></rect>
+                    <g transform-origin="12 18" id="lid-group">
+                        <rect x="12" y="12" width="40" height="6" rx="2" ry="2" fill="#c0392b"></rect>
+                        <rect x="26" y="8" width="12" height="4" rx="2" ry="2" fill="#c0392b"></rect>
+                    </g>
+                </g>
+            </svg>
         `;
+
+        btn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            deleteHistoryItem(item.id);
+        });
+
+        div.appendChild(left);
+        div.appendChild(btn);
+
+        div.addEventListener("click", () => restoreHistoryItem(item));
         list.appendChild(div);
     });
 }
 
-// Xóa toàn bộ lịch sử
-function clearHistory() {
-    const history = localStorage.getItem("netcalc_history");
+function deleteHistoryItem(id) {
+    try {
+        let history = JSON.parse(localStorage.getItem("netcalc_history") || "[]");
+        history = history.filter((h) => h.id !== id);
+        localStorage.setItem("netcalc_history", JSON.stringify(history));
+        loadHistory();
+        showToast("Đã xóa mục lịch sử", "success");
+    } catch (e) {
+        console.error(e);
+    }
+}
 
-    if (!history || JSON.parse(history).length === 0) {
+function restoreHistoryItem(item) {
+    const outputDiv = document.getElementById("output-area");
+    if (!outputDiv) return;
+
+    if (item.fullHTML) {
+        outputDiv.innerHTML = item.fullHTML;
+    } else {
+        outputDiv.innerHTML = `<div><strong>${item.title}</strong><br>${item.detail}</div>`;
+    }
+
+    const sidebar = document.getElementById("history-sidebar");
+    const overlay = document.getElementById("history-overlay");
+    if (sidebar && overlay && sidebar.classList.contains("open")) toggleHistory();
+
+    showToast("Khôi phục lịch sử thành công!", "success");
+}
+
+function clearHistory() {
+    const raw = localStorage.getItem("netcalc_history");
+    if (!raw || JSON.parse(raw).length === 0) {
         showToast("Không có lịch sử để xóa!", "error");
         return;
     }
-
     localStorage.removeItem("netcalc_history");
     loadHistory();
-
     showToast("Đã xóa toàn bộ lịch sử!", "success");
 }
+
+// ========================================
+// 7. TOAST NOTIFICATIONS
+// ========================================
 
 function showToast(message, type = "success") {
     const toast = document.createElement("div");
@@ -525,15 +711,12 @@ function showToast(message, type = "success") {
 
     document.body.appendChild(toast);
 
-    // show animation
     setTimeout(() => toast.classList.add("show"), 10);
 
-    // shake if error
     if (type === "error") {
         setTimeout(() => toast.classList.add("shake"), 180);
     }
 
-    // auto remove
     setTimeout(() => {
         toast.classList.remove("show");
         setTimeout(() => toast.remove(), 350);
